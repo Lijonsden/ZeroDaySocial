@@ -1,0 +1,13 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div id="react-app">Loading...</div>
+
+@section scripts {
+    <script src="~/dist/main.js" asp-append-version="true"></script>
+
+    <script type="text/javascript">
+        window.location.replace("http://" + window.location.host + "/dashboard/index");
+    </script>
+}

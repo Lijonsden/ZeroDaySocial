@@ -1,0 +1,87 @@
+﻿@model ZeroDaySocial.Models.ZeroDayTwitterUser
+
+<p>
+    @if (Model != null)
+    {
+        @Model.Name<br />
+        @Model.ScreenName<br />
+        @Model.TwitterId<br />
+        @Model.AccessToken<br />
+        @Model.AccessTokenSecret<br />
+    }
+    else
+    {
+    <p>
+        <a href="http://localhost:61624/twitterauthentication/twitterauth">LOGIN</a>
+    </p>
+}
+    </p>
+
+    <div class="container">
+        <div class="row">&nbsp;</div>
+        <div class="row">
+            <div class="col-6">&nbsp;</div>
+            <div class="col-6">
+                User..........<input type="text" id="userInput" />
+                <br />
+                Message...<input type="text" id="messageInput" />
+                <input type="button" id="sendButton" value="Send Message" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <hr />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">&nbsp;</div>
+            <div class="col-6">
+                <ul id="messagesList"></ul>
+            </div>
+        </div>
+    </div>
+    @*<script src="~/js/chat.js"></script>
+        <script src="~/js/es5-chat.js"></script>*@
+    @section scripts
+        {
+        <script src="~/dist/signalr/signalr.js"></script>
+        <script type="text/javascript">
+        var request = new XMLHttpRequest();
+        var twitterId = '@Model?.TwitterId';
+        console.log(twitterId);
+
+        if (twitterId != '') {
+            request.open("GET", "http://localhost:55735/api/twitterapi/startstreamer?twitterId=" + twitterId);
+
+            request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(request.responseText);
+
+                const connection = new signalR.HubConnectionBuilder()
+                    .withUrl("http://localhost:55735/twitterStreamerHub")
+                    .build();
+
+                connection.on("RecieveStream", (user, message) => {
+                    const msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    const encodedMsg = user + " says " + msg;
+                    const li = document.createElement("li");
+                    li.textContent = encodedMsg;
+                    document.getElementById("messagesList").appendChild(li);
+                });
+
+                connection.start().catch(err => console.error(err.toString()));
+
+                document.getElementById("sendButton").addEventListener("click", event => {
+                    const user = document.getElementById("userInput").value;
+                    const message = document.getElementById("messageInput").value;
+                    connection.invoke("SendMessage", user, message).catch(err => console.error(err.toString()));
+                    event.preventDefault();
+                });
+            }
+            };
+
+            request.send();
+        }
+
+        </script>
+    }
