@@ -57,8 +57,15 @@ namespace ZeroDaySocial.Controllers
                 return StatusCode(401);
 
             var twitterId = await _twitterApplication.CreateUser(user);
+            await _twitterApplication.CreateCredentials(new Models.TwitterUserCredentials()
+            {
+                AccessToken = userCreds.AccessToken,
+                AccessTokenSecret = userCreds.AccessTokenSecret,
+                TwitterId = twitterId,
+                ValidUntil = DateTime.UtcNow
+            }); 
 
-            _httpContextAccessor.HttpContext.Response.Cookies.Append("twitterId", twitterId, new CookieOptions() { Secure = false, Expires = DateTime.UtcNow.AddSeconds(60) }); 
+            _httpContextAccessor.HttpContext.Response.Cookies.Append("twitterId", twitterId, new CookieOptions() { Secure = false, Expires = DateTime.UtcNow.AddSeconds(20) }); 
 
             return new RedirectToActionResult("Index", "Dashboard", new { twitterId = twitterId });
         }

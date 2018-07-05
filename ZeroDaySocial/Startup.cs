@@ -23,8 +23,8 @@ namespace ZeroDaySocial
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.Configure<Options.TwitterApiConfiguration>(Configuration.GetSection(nameof(Options.TwitterApiConfiguration)));
             services.AddTransient<Repositories.ITwitterApplicationClient, Repositories.TwitterApplicationClient>();
+            services.Configure<Options.TwitterApiConfiguration>(Configuration.GetSection(nameof(Options.TwitterApiConfiguration)));
             services.AddMvc();
         }
 

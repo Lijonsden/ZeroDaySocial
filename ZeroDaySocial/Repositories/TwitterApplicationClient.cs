@@ -13,10 +13,22 @@ namespace ZeroDaySocial.Repositories
     {
         private static HttpClient httpClient = new HttpClient();
 
+        public async Task<string> CreateCredentials(TwitterUserCredentials twitterUserCredentials)
+        {
+            var url = "http://localhost:55735/api/accounts/credentials";
+            var userCredentials = JsonConvert.SerializeObject(twitterUserCredentials);
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync(url, userCredentials);
+
+            if (response.IsSuccessStatusCode)
+                return twitterUserCredentials.TwitterId;
+            else
+                return null;
+        }
+
         public Task<string> CreateUser(IAuthenticatedUser user)
         {
             var applicationUser = new Models.ZeroDayTwitterUser
-            { Name = user.Name, ScreenName = user.ScreenName, TwitterId = user.IdStr, AccessToken = user.Credentials.AccessToken, AccessTokenSecret = user.Credentials.AccessTokenSecret };
+            { Name = user.Name, ScreenName = user.ScreenName, TwitterId = user.IdStr };
 
             return CreateUser(applicationUser);
         }
@@ -46,8 +58,6 @@ namespace ZeroDaySocial.Repositories
                 Name = responseBody.result.Name,
                 ScreenName = responseBody.result.ScreenName,
                 TwitterId = responseBody.result.TwitterId,
-                AccessToken = responseBody.result.AccessToken,
-                AccessTokenSecret = responseBody.result.AccessTokenSecret
             };
         }
     }

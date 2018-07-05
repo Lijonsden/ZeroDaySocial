@@ -6,8 +6,6 @@
         @Model.Name<br />
         @Model.ScreenName<br />
         @Model.TwitterId<br />
-        @Model.AccessToken<br />
-        @Model.AccessTokenSecret<br />
     }
     else
     {
@@ -26,6 +24,7 @@
                 <br />
                 Message...<input type="text" id="messageInput" />
                 <input type="button" id="sendButton" value="Send Message" />
+                <input type="button" id="twitterButton" value="Get Stream" />
             </div>
         </div>
         <div class="row">
@@ -46,42 +45,54 @@
         {
         <script src="~/dist/signalr/signalr.js"></script>
         <script type="text/javascript">
-        var request = new XMLHttpRequest();
-        var twitterId = '@Model?.TwitterId';
-        console.log(twitterId);
+            var twitterId = '@Model?.TwitterId';
+            var clientId = '';
 
-        if (twitterId != '') {
-            request.open("GET", "http://localhost:55735/api/twitterapi/startstreamer?twitterId=" + twitterId);
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("http://localhost:55735/twitterStreamerHub")
+                .build();
 
-            request.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                console.log(request.responseText);
+            connection.on("GetStream", (user, message) => {
+                const msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                const encodedMsg = user + " says " + msg;
+                const li = document.createElement("li");
+                li.textContent = encodedMsg;
+                document.getElementById("messagesList").appendChild(li);
+            });
 
-                const connection = new signalR.HubConnectionBuilder()
-                    .withUrl("http://localhost:55735/twitterStreamerHub")
-                    .build();
+            connection.on("Handshake", (data) => {
+                console.log("Hello, " + data);
+                clientId = data;
+            });
 
-                connection.on("RecieveStream", (user, message) => {
-                    const msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                    const encodedMsg = user + " says " + msg;
-                    const li = document.createElement("li");
-                    li.textContent = encodedMsg;
-                    document.getElementById("messagesList").appendChild(li);
-                });
+            connection.start().catch(err => console.error(err.toString()));
 
-                connection.start().catch(err => console.error(err.toString()));
+            document.getElementById("sendButton").addEventListener("click", event => {
+                const user = document.getElementById("userInput").value;
+                const message = document.getElementById("messageInput").value;
+                connection.invoke("SendMessage", user, message).catch(err => console.error(err.toString()));
+                event.preventDefault();
+            });
 
-                document.getElementById("sendButton").addEventListener("click", event => {
-                    const user = document.getElementById("userInput").value;
-                    const message = document.getElementById("messageInput").value;
-                    connection.invoke("SendMessage", user, message).catch(err => console.error(err.toString()));
-                    event.preventDefault();
-                });
+            document.getElementById("twitterButton").addEventListener("click", event => {
+                test();
+            });
+
+            console.log(twitterId);
+
+            function test() {
+                console.log("TESTING")
+                var request = new XMLHttpRequest();
+                request.open("GET", "http://localhost:55735/api/twitterapi/startstreamer?twitterId=" + twitterId + "&clientId=" + clientId);
+                request.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        console.log(request.responseText);
+
+                    }
+                };
+
+                request.send();
             }
-            };
-
-            request.send();
-        }
 
         </script>
     }
