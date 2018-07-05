@@ -48,6 +48,7 @@
             var twitterId = '@Model?.TwitterId';
             var clientId = '';
 
+            if (twitterId != '') {
             const connection = new signalR.HubConnectionBuilder()
                 .withUrl("http://localhost:55735/twitterStreamerHub")
                 .build();
@@ -92,6 +93,7 @@
                 };
 
                 request.send();
+                }
             }
 
         </script>
