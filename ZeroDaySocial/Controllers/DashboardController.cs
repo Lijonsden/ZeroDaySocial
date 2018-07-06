@@ -13,7 +13,8 @@ namespace ZeroDaySocial.Controllers
         private readonly Repositories.ITwitterApplicationClient _twitterClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DashboardController(Repositories.ITwitterApplicationClient twitterClient, IHttpContextAccessor httpContextAccessor)
+        public DashboardController(Repositories.ITwitterApplicationClient twitterClient, 
+            IHttpContextAccessor httpContextAccessor)
         {
             _twitterClient = twitterClient;
             _httpContextAccessor = httpContextAccessor;

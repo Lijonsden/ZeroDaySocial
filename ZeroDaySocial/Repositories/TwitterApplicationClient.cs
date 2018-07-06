@@ -15,7 +15,7 @@ namespace ZeroDaySocial.Repositories
 
         public async Task<string> CreateCredentials(TwitterUserCredentials twitterUserCredentials)
         {
-            var url = "http://localhost:55735/api/accounts/credentials";
+            var url = "http://lijonsolutionsdev.azurewebsites.net/api/twitter/accounts/credentials";
             var userCredentials = JsonConvert.SerializeObject(twitterUserCredentials);
             HttpResponseMessage response = await httpClient.PostAsJsonAsync(url, userCredentials);
 
@@ -35,7 +35,7 @@ namespace ZeroDaySocial.Repositories
 
         public async Task<string> CreateUser(Models.ZeroDayTwitterUser twitterUser)
         {
-            var url = "http://localhost:55735/api/accounts/users";
+            var url = "http://lijonsolutionsdev.azurewebsites.net/api/twitter/accounts/users";
             var user = JsonConvert.SerializeObject(twitterUser);
             HttpResponseMessage response = await httpClient.PostAsJsonAsync(url, user);
 
@@ -47,7 +47,7 @@ namespace ZeroDaySocial.Repositories
 
         public async Task<ZeroDayTwitterUser> GetUser(string twitterId)
         {
-            HttpResponseMessage response = await httpClient.GetAsync("http://localhost:55735/api/accounts/users/" + twitterId);
+            HttpResponseMessage response = await httpClient.GetAsync("http://lijonsolutionsdev.azurewebsites.net/api/twitter/accounts/users/" + twitterId);
             var responseBody = JsonConvert.DeserializeObject<Models.ConverterModels.ResponseTwitterUser.JsonDeserialize>(await response.Content.ReadAsStringAsync());
 
             if (responseBody?.result == null)

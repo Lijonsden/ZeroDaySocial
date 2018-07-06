@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Tweetinvi;
 using Tweetinvi.Models;
@@ -19,7 +17,8 @@ namespace ZeroDaySocial.Controllers
         private Options.TwitterApiConfiguration _options;
         private readonly ILogger _logger;
 
-        public TwitterAuthenticationController(IOptions<Options.TwitterApiConfiguration> options, IHttpContextAccessor accessor, ILogger<TwitterAuthenticationController> logger, 
+        public TwitterAuthenticationController(IOptions<Options.TwitterApiConfiguration> options, 
+            IHttpContextAccessor accessor, ILogger<TwitterAuthenticationController> logger, 
             Repositories.ITwitterApplicationClient twitterApplication)
         {
             _options = options.Value;
@@ -32,7 +31,9 @@ namespace ZeroDaySocial.Controllers
         public async Task<IActionResult> TwitterAuth()
         {
             var callbackUrl = "http://localhost:61624/twitterauthentication/ValidateTwitterAuth";
-            _authenticationContext = AuthFlow.InitAuthentication(new ConsumerCredentials(_options.ConsumerKey, _options.ConsumerSecret), callbackUrl);
+            _authenticationContext = AuthFlow.InitAuthentication(new ConsumerCredentials(_options.ConsumerKey, 
+                _options.ConsumerSecret), 
+                callbackUrl);
 
             if (_authenticationContext == null)
                 throw new Exception("no authentication context");

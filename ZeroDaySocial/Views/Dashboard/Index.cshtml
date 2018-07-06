@@ -20,11 +20,13 @@
         <div class="row">
             <div class="col-6">&nbsp;</div>
             <div class="col-6">
-                User..........<input type="text" id="userInput" />
+                Tacks<input type="text" id="tracks" />
                 <br />
-                Message...<input type="text" id="messageInput" />
-                <input type="button" id="sendButton" value="Send Message" />
                 <input type="button" id="twitterButton" value="Get Stream" />
+                <input type="button" id="twitterStopButton" value="Stop Stream" />
+                <input type="button" id="twitterRemoveButton" value="Disconnect Stream" />
+                <input type="button" id="twitterPauseButton" value="Pause Stream" />
+                <input type="button" id="twitterResumeButton" value="Resume Stream" />
             </div>
         </div>
         <div class="row">
@@ -39,8 +41,7 @@
             </div>
         </div>
     </div>
-    @*<script src="~/js/chat.js"></script>
-        <script src="~/js/es5-chat.js"></script>*@
+
     @section scripts
         {
         <script src="~/dist/signalr/signalr.js"></script>
@@ -50,41 +51,60 @@
 
             if (twitterId != '') {
             const connection = new signalR.HubConnectionBuilder()
-                .withUrl("http://localhost:55735/twitterStreamerHub")
-                .build();
+                .withUrl("http://lijonsolutionsdev.azurewebsites.net/twitterStreamerHub")
+            .build();
+
+            connection.on("Contact", (id) => {
+                connection.invoke("Handshake", id).catch(err => console.error(err.toString()));
+            });
+
+            connection.on("Response", (success, id) => {
+                if (success) {
+                    console.log("Successfully connected with id " + id);
+                    clientId = id;
+                }
+                else {
+                    console.log("Handshake refused by server");
+                }
+            });
 
             connection.on("GetStream", (user, message) => {
                 const msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                const encodedMsg = user + " says " + msg;
+                const encodedMsg = msg;
                 const li = document.createElement("li");
                 li.textContent = encodedMsg;
                 document.getElementById("messagesList").appendChild(li);
             });
 
-            connection.on("Handshake", (data) => {
-                console.log("Hello, " + data);
-                clientId = data;
-            });
-
             connection.start().catch(err => console.error(err.toString()));
-
-            document.getElementById("sendButton").addEventListener("click", event => {
-                const user = document.getElementById("userInput").value;
-                const message = document.getElementById("messageInput").value;
-                connection.invoke("SendMessage", user, message).catch(err => console.error(err.toString()));
-                event.preventDefault();
-            });
 
             document.getElementById("twitterButton").addEventListener("click", event => {
                 test();
             });
 
+            document.getElementById("twitterRemoveButton").addEventListener("click", event => {
+                test2();
+            });
+
+            document.getElementById("twitterStopButton").addEventListener("click", event => {
+                test3();
+            });
+
+            document.getElementById("twitterResumeButton").addEventListener("click", event => {
+                test4();
+                });
+
+            document.getElementById("twitterPauseButton").addEventListener("click", event => {
+                test5();
+            });
+
             console.log(twitterId);
 
-            function test() {
+                function test() {
+                const tracks = document.getElementById("tracks").value;
                 console.log("TESTING")
                 var request = new XMLHttpRequest();
-                request.open("GET", "http://localhost:55735/api/twitterapi/startstreamer?twitterId=" + twitterId + "&clientId=" + clientId);
+                request.open("GET", "http://lijonsolutionsdev.azurewebsites.net/api/twitter/streamer/startstreamer?twitterId=" + twitterId + "&clientId=" + clientId + "&tracks=" + tracks);
                 request.onreadystatechange = function () {
                     if (this.readyState == 4 && this.status == 200) {
                         console.log(request.responseText);
@@ -94,7 +114,71 @@
 
                 request.send();
                 }
+
+                function test2() {
+                    console.log("TESTING2")
+                    var request = new XMLHttpRequest();
+                    request.open("GET", "http://lijonsolutionsdev.azurewebsites.net/api/twitter/streamer/removestreamer?clientId=" + clientId);
+                    request.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            console.log(request.responseText);
+
+                        }
+                    };
+
+                    request.send();
+                }
+
+                function test3() {
+                    console.log("TESTING3")
+                    var request = new XMLHttpRequest();
+                    request.open("GET", "http://lijonsolutionsdev.azurewebsites.net/api/twitter/streamer/stopstreamer?clientId=" + clientId);
+                    request.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            console.log(request.responseText);
+
+                        }
+                    };
+
+                    request.send();
+                }
+
+                function test4() {
+                    console.log("TESTING3")
+                    var request = new XMLHttpRequest();
+                    request.open("GET", "http://lijonsolutionsdev.azurewebsites.net/api/twitter/streamer/resumestreamer?clientId=" + clientId);
+                    request.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            console.log(request.responseText);
+
+                        }
+                    };
+
+                    request.send();
+                }
+
+                function test5() {
+                    console.log("TESTING3")
+                    var request = new XMLHttpRequest();
+                    request.open("GET", "http://lijonsolutionsdev.azurewebsites.net/api/twitter/streamer/pausestreamer?clientId=" + clientId);
+                    request.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            console.log(request.responseText);
+
+                        }
+                    };
+
+                    request.send();
+                }
             }
+
+    //    document.getElementById("sendButton").addEventListener("click", event => {
+    //    const user = document.getElementById("userInput").value;
+    //    const message = document.getElementById("messageInput").value;
+    //    connection.invoke("Handshake", clientId).catch(err => console.error(err.toString()));
+    //    event.preventDefault();
+    //});
 
         </script>
     }
+
